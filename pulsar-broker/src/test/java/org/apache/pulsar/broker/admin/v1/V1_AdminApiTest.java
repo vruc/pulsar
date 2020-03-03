@@ -956,7 +956,7 @@ public class V1_AdminApiTest extends MockedPulsarServiceBaseTest {
         assertEquals(admin.topics().getList(namespace), Lists.newArrayList(topicName));
 
         try {
-            admin.namespaces().splitNamespaceBundle(namespace, "0x00000000_0xffffffff", true);
+            admin.namespaces().splitNamespaceBundle(namespace, "0x00000000_0xffffffff", true, null);
         } catch (Exception e) {
             fail("split bundle shouldn't have thrown exception");
         }
@@ -986,7 +986,7 @@ public class V1_AdminApiTest extends MockedPulsarServiceBaseTest {
         assertEquals(admin.topics().getList(namespace), Lists.newArrayList(topicName));
 
         try {
-            admin.namespaces().splitNamespaceBundle(namespace, "0x00000000_0xffffffff", false);
+            admin.namespaces().splitNamespaceBundle(namespace, "0x00000000_0xffffffff", false, null);
         } catch (Exception e) {
             fail("split bundle shouldn't have thrown exception");
         }
@@ -1007,13 +1007,13 @@ public class V1_AdminApiTest extends MockedPulsarServiceBaseTest {
                     () ->
                     {
                         log.info("split 2 bundles at the same time. spilt: 0x00000000_0x7fffffff ");
-                        admin.namespaces().splitNamespaceBundle(namespace, "0x00000000_0x7fffffff", false);
+                        admin.namespaces().splitNamespaceBundle(namespace, "0x00000000_0x7fffffff", false, null);
                         return null;
                     },
                     () ->
                     {
                         log.info("split 2 bundles at the same time. spilt: 0x7fffffff_0xffffffff ");
-                        admin.namespaces().splitNamespaceBundle(namespace, "0x7fffffff_0xffffffff", false);
+                        admin.namespaces().splitNamespaceBundle(namespace, "0x7fffffff_0xffffffff", false, null);
                         return null;
                     }
                 )
@@ -1039,25 +1039,25 @@ public class V1_AdminApiTest extends MockedPulsarServiceBaseTest {
                     () ->
                     {
                         log.info("split 4 bundles at the same time. spilt: 0x00000000_0x3fffffff ");
-                        admin.namespaces().splitNamespaceBundle(namespace, "0x00000000_0x3fffffff", false);
+                        admin.namespaces().splitNamespaceBundle(namespace, "0x00000000_0x3fffffff", false, null);
                         return null;
                     },
                     () ->
                     {
                         log.info("split 4 bundles at the same time. spilt: 0x3fffffff_0x7fffffff ");
-                        admin.namespaces().splitNamespaceBundle(namespace, "0x3fffffff_0x7fffffff", false);
+                        admin.namespaces().splitNamespaceBundle(namespace, "0x3fffffff_0x7fffffff", false, null);
                         return null;
                     },
                     () ->
                     {
                         log.info("split 4 bundles at the same time. spilt: 0x7fffffff_0xbfffffff ");
-                        admin.namespaces().splitNamespaceBundle(namespace, "0x7fffffff_0xbfffffff", false);
+                        admin.namespaces().splitNamespaceBundle(namespace, "0x7fffffff_0xbfffffff", false, null);
                         return null;
                     },
                     () ->
                     {
                         log.info("split 4 bundles at the same time. spilt: 0xbfffffff_0xffffffff ");
-                        admin.namespaces().splitNamespaceBundle(namespace, "0xbfffffff_0xffffffff", false);
+                        admin.namespaces().splitNamespaceBundle(namespace, "0xbfffffff_0xffffffff", false, null);
                         return null;
                     }
                 )
@@ -1490,14 +1490,14 @@ public class V1_AdminApiTest extends MockedPulsarServiceBaseTest {
 
         int receivedAfterReset = 0;
 
-        for (int i = 4; i < 10; i++) {
+        for (int i = 5; i < 10; i++) {
             Message<byte[]> message = consumer.receive();
             consumer.acknowledge(message);
             ++receivedAfterReset;
             String expected = "message-" + i;
             assertEquals(message.getData(), expected.getBytes());
         }
-        assertEquals(receivedAfterReset, 6);
+        assertEquals(receivedAfterReset, 5);
 
         consumer.close();
 
@@ -1549,29 +1549,29 @@ public class V1_AdminApiTest extends MockedPulsarServiceBaseTest {
 
         int receivedAfterReset = 0;
 
-        // Should received messages from 4-9
-        for (int i = 4; i < 10; i++) {
+        // Should received messages from 5-9
+        for (int i = 5; i < 10; i++) {
             Message<byte[]> message = consumer.receive();
             consumer.acknowledge(message);
             ++receivedAfterReset;
             String expected = "message-" + i;
             assertEquals(new String(message.getData()), expected);
         }
-        assertEquals(receivedAfterReset, 6);
+        assertEquals(receivedAfterReset, 5);
 
         // Reset at 2nd timestamp
         receivedAfterReset = 0;
         admin.topics().resetCursor(topicName, "my-sub", secondTimestamp);
 
-        // Should received messages from 7-9
-        for (int i = 7; i < 10; i++) {
+        // Should received messages from 8-9
+        for (int i = 8; i < 10; i++) {
             Message<byte[]> message = consumer.receive();
             consumer.acknowledge(message);
             ++receivedAfterReset;
             String expected = "message-" + i;
             assertEquals(new String(message.getData()), expected);
         }
-        assertEquals(receivedAfterReset, 3);
+        assertEquals(receivedAfterReset, 2);
 
         consumer.close();
         admin.topics().deleteSubscription(topicName, "my-sub");
@@ -1614,7 +1614,7 @@ public class V1_AdminApiTest extends MockedPulsarServiceBaseTest {
 
         Set<String> expectedMessages = Sets.newHashSet();
         Set<String> receivedMessages = Sets.newHashSet();
-        for (int i = 4; i < 10; i++) {
+        for (int i = 5; i < 10; i++) {
             Message<byte[]> message = consumer.receive();
             consumer.acknowledge(message);
             expectedMessages.add("message-" + i);
